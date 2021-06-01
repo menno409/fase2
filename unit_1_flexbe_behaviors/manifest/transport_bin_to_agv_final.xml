@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="transport_bin_to_agv_final">
+
+	<executable package_path="unit_1_flexbe_behaviors.transport_bin_to_agv_final_sm" class="transport_bin_to_agv_finalSM" />
+	<tagstring></tagstring>
+	<author>Menno Spriensma</author>
+	<date>Mon May 31 2021</date>
+	<description>
+		bestaat uit pick_part_from_bin en place_part_on_agv
+	</description>
+
+
+	<!-- Contained Behaviors -->
+	<contains name="pick_part_from_bin" />
+	<contains name="place_part_on_agv" />
+
+	<!-- Available Parameters -->
+
+</behavior>
