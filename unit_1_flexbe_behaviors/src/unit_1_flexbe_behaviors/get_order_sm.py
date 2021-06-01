@@ -9,6 +9,7 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from ariac_flexbe_example_behaviors.get_shipments_sm import get_shipmentsSM
+from ariac_flexbe_example_behaviors.notify_shipment_ready_sm import notify_shipment_readySM
 from ariac_flexbe_states.end_assignment_state import EndAssignment
 from ariac_flexbe_states.message_state import MessageState
 from ariac_flexbe_states.start_assignment_state import StartAssignment
@@ -37,6 +38,7 @@ class get_orderSM(Behavior):
 
 		# references to used behaviors
 		self.add_behavior(get_shipmentsSM, 'get_shipments')
+		self.add_behavior(notify_shipment_readySM, 'notify_shipment_ready')
 
 		# Additional initialization code can be added inside the following tags
 		# [MANUAL_INIT]
@@ -49,7 +51,7 @@ class get_orderSM(Behavior):
 
 	def create(self):
 		# x:1132 y:54, x:687 y:211
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'fail'], output_keys=['material_locations', 'ProductType', 'ProductPose'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'fail'], input_keys=['AgvID', 'ShipmentType'], output_keys=['material_locations', 'ProductType', 'ProductPose', 'ShipmentType', 'AgvID'])
 		_state_machine.userdata.StartText = 'Opdracht gestart'
 		_state_machine.userdata.StopText = 'Opdracht gestopt'
 		_state_machine.userdata.Shipments = []
@@ -61,6 +63,8 @@ class get_orderSM(Behavior):
 		_state_machine.userdata.NumberOfProducts = 0
 		_state_machine.userdata.ProductType = ''
 		_state_machine.userdata.ProductPose = ''
+		_state_machine.userdata.ShipmentType = ''
+		_state_machine.userdata.AgvID = ''
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -96,7 +100,7 @@ class get_orderSM(Behavior):
 										autonomy={'continue': Autonomy.Off},
 										remapping={'message': 'StartText'})
 
-			# x:963 y:44
+			# x:1060 y:108
 			OperatableStateMachine.add('StopMessage',
 										MessageState(),
 										transitions={'continue': 'finished'},
@@ -106,11 +110,18 @@ class get_orderSM(Behavior):
 			# x:595 y:40
 			OperatableStateMachine.add('get_shipments',
 										self.use_behavior(get_shipmentsSM, 'get_shipments'),
-										transitions={'finished': 'EndAssigment', 'fail': 'fail'},
+										transitions={'finished': 'notify_shipment_ready', 'fail': 'fail'},
 										autonomy={'finished': Autonomy.Inherit, 'fail': Autonomy.Inherit},
-										remapping={'Shipments': 'Shipments', 'NumberOfShipments': 'NumberOfShipments'})
+										remapping={'Shipments': 'Shipments', 'NumberOfShipments': 'NumberOfShipments', 'AgvID': 'AgvID', 'ShipmentType': 'ShipmentType'})
 
-			# x:803 y:41
+			# x:803 y:46
+			OperatableStateMachine.add('notify_shipment_ready',
+										self.use_behavior(notify_shipment_readySM, 'notify_shipment_ready'),
+										transitions={'finished': 'EndAssigment', 'failed': 'fail'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
+										remapping={'AgvID': 'AgvID', 'ShipmentType': 'ShipmentType'})
+
+			# x:907 y:144
 			OperatableStateMachine.add('EndAssigment',
 										EndAssignment(),
 										transitions={'continue': 'StopMessage'},

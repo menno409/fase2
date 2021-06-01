@@ -53,7 +53,7 @@ AGV leggen
 
 	def create(self):
 		# x:30 y:275, x:130 y:275
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['ProductPose', 'robot_namespace'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['ProductPose', 'robot_namespace', 'part_height_float'])
 		_state_machine.userdata.ProductPose = ''
 		_state_machine.userdata.robot_namespace = ''
 		_state_machine.userdata.config_name_home = 'home'
@@ -73,6 +73,8 @@ AGV leggen
 		_state_machine.userdata.zero = 0
 		_state_machine.userdata.robot_config_predrop = 'AGV1PreDrop'
 		_state_machine.userdata.tray = 'kit_tray_1'
+		_state_machine.userdata.part_height_float = ''
+		_state_machine.userdata.part_height_test = 0.05
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -139,7 +141,7 @@ AGV leggen
 										ComputeGraspAriacState(joint_names=['linear_arm_actuator_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']),
 										transitions={'continue': 'Move to drop', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'move_group': 'move_group', 'action_topic_namespace': 'action_topic_namespace', 'tool_link': 'tool_link', 'pose': 'output_pose', 'offset': 'part_height', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
+										remapping={'move_group': 'move_group', 'action_topic_namespace': 'action_topic_namespace', 'tool_link': 'tool_link', 'pose': 'output_pose', 'offset': 'part_height_test', 'rotation': 'part_rotation', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
 
 		return _state_machine

@@ -56,7 +56,7 @@ class pick_part_from_binSM(Behavior):
 
 	def create(self):
 		# x:139 y:319, x:449 y:445
-		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['part', 'robot_namespace'])
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['part', 'robot_namespace'], output_keys=['part_height_float'])
 		_state_machine.userdata.robot_namespace = ''
 		_state_machine.userdata.camera_topic = ''
 		_state_machine.userdata.zero = 0
@@ -75,6 +75,7 @@ class pick_part_from_binSM(Behavior):
 		_state_machine.userdata.bin = ''
 		_state_machine.userdata.part_pose = []
 		_state_machine.userdata.part = ''
+		_state_machine.userdata.part_height_float = ''
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -165,10 +166,17 @@ class pick_part_from_binSM(Behavior):
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'robot_config', 'move_group': 'move_group', 'action_topic_namespace': 'action_topic_namespace', 'action_topic': 'action_topic', 'robot_name': 'robotname', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
-			# x:480 y:569
+			# x:435 y:563
+			OperatableStateMachine.add('Move pregrasp_2',
+										SrdfStateToMoveitAriac(),
+										transitions={'reached': 'Move home2', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
+										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
+										remapping={'config_name': 'robot_config', 'move_group': 'move_group', 'action_topic_namespace': 'action_topic_namespace', 'action_topic': 'action_topic', 'robot_name': 'robotname', 'config_name_out': 'config_name_out', 'move_group_out': 'move_group_out', 'robot_name_out': 'robot_name_out', 'action_topic_out': 'action_topic_out', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
+
+			# x:620 y:595
 			OperatableStateMachine.add('Move to pick',
 										MoveitToJointsDynAriacState(),
-										transitions={'reached': 'Move home2', 'planning_failed': 'wait retry 3', 'control_failed': 'wait retry 3'},
+										transitions={'reached': 'Move pregrasp_2', 'planning_failed': 'wait retry 3', 'control_failed': 'wait retry 3'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
 										remapping={'action_topic_namespace': 'action_topic_namespace', 'move_group': 'move_group', 'action_topic': 'action_topic', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
@@ -199,7 +207,7 @@ class pick_part_from_binSM(Behavior):
 										autonomy={'done': Autonomy.Off},
 										remapping={'text_value': 'part_height', 'float_value': 'part_height_float'})
 
-			# x:525 y:663
+			# x:691 y:678
 			OperatableStateMachine.add('wait retry 3',
 										WaitState(wait_time=1),
 										transitions={'done': 'Move to pick'},
@@ -211,7 +219,7 @@ class pick_part_from_binSM(Behavior):
 										transitions={'done': 'Move home2'},
 										autonomy={'done': Autonomy.Off})
 
-			# x:756 y:570
+			# x:1066 y:632
 			OperatableStateMachine.add('Activate gripper',
 										VacuumGripperControlState(enable=True),
 										transitions={'continue': 'Move to pick', 'failed': 'failed'},

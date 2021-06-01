@@ -13,6 +13,7 @@
 
 	<!-- Contained Behaviors -->
 	<contains name="get_shipments" />
+	<contains name="notify_shipment_ready" />
 
 	<!-- Available Parameters -->
 
